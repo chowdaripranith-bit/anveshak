@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anveshak — Security Monitoring System</title>
+  <meta name="description" content="Anveshak Real-Time Single-Camera Security Monitoring System with Weapon Detection and Suspicious Activity Analysis." />
+
+  <!-- California FB font fallbacks for all platforms -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Bar -->
+    <header class="top-header">
+      <div class="brand">
+        <h1 class="brand-name">ANVESHAK</h1>
+        <span class="brand-desc">SECURITY MONITORING SYSTEM &bull; FACILITY SURVEILLANCE</span>
+      </div>
+
+      <div class="system-status">
+        <div class="status-badge">
+          <span class="indicator live" id="cam-indicator"></span>
+          <span class="label">CAMERA:</span>
+          <span class="value" id="cam-status">ACTIVE</span>
+        </div>
+        <div class="status-badge">
+          <span class="indicator live" id="ws-indicator"></span>
+          <span class="label">ALERT FEED:</span>
+          <span class="value" id="ws-status">CONNECTED</span>
+        </div>
+        <div class="status-badge">
+          <span class="label">TIME:</span>
+          <span class="value" id="clock">00:00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Prominent Weapon Detection Alert (Knife / Gun) -->
+    <section class="weapon-alert-banner" id="weapon-alert" hidden aria-live="assertive">
+      <div class="weapon-alert-inner">
+        <div class="alert-icon">&#9888;</div>
+        <div class="alert-info">
+          <h2 class="alert-heading" id="weapon-title">WEAPON DETECTED &mdash; CRITICAL ALERT</h2>
+          <p class="alert-facility" id="weapon-facility">LOCATION: Main Public Facility Sector &bull; Shopping Mall / Bank Area</p>
+          <p class="alert-instruction" id="weapon-instruction">
+            ATTENTION SECURITY: Immediate action required. Notify on-site security personnel and management immediately.
+          </p>
+        </div>
+        <button class="btn-ack" id="btn-ack-weapon">ACKNOWLEDGE</button>
+      </div>
+    </section>
+
+    <!-- Main Screen Grid -->
+    <main class="main-content">
+      <!-- Left Column: Single Camera Real-Time Feed -->
+      <section class="camera-panel">
+        <div class="panel-box feed-box">
+          <div class="panel-header">
+            <div class="header-tag">
+              <span class="dot-rec" id="cam-rec-dot"></span>
+              <span>CAM 01 &bull; MAIN LIVE FEED</span>
+            </div>
+            <div class="header-specs">
+              <button id="btn-camera-toggle" class="btn-camera-toggle active" type="button" aria-label="Toggle camera on or off" title="Toggle camera capture on/off">
+                <span class="cam-toggle-dot"></span>
+                <span id="cam-toggle-label">CAMERA ON</span>
+              </button>
+              <span id="feed-src">SOURCE: 0 (WEBCAM)</span>
+              <span id="feed-res">640x480 &bull; 24 FPS</span>
+            </div>
+          </div>
+
+          <!-- Video Display Container -->
+          <div class="screen-container" id="screen-container">
+            <!-- Live MJPEG stream from backend CameraWorker -->
+            <img
+              id="camera-stream"
+              src="/api/stream"
+              alt="Live Camera Feed"
+              width="640"
+              height="480"
+              style="width:100%;height:100%;object-fit:cover;display:block;"
+            />
+            <canvas id="camera-canvas" width="640" height="480" style="display:none;"></canvas>
+            
+            <div class="screen-overlay">
+              <div class="rack-zone" id="rack-zone" title="Configured Interaction Zone">
+                <span class="zone-tag">MONITORED MERCHANDISE ZONE</span>
+              </div>
+              <div class="screen-footer-meta">
+                <span id="person-tracking-tag">TRACKED PERSONS: 0</span>
+                <span id="threat-status-tag">THREAT STATUS: NORMAL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feed Metadata Footer -->
+          <div class="panel-footer">
+            <div class="meta-item">
+              <span class="meta-label">FACILITY LOCATION</span>
+              <span class="meta-val">Main Public Sector &bull; Commercial Zone</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">DETECTION MODELS</span>
+              <span class="meta-val">YOLOv8n (Person) + Weapon Detector (Gun/Knife)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">AI REASONING ENGINE</span>
+              <span class="meta-val">Featherless AI (Qwen 2.5-7B)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Evidence Snapshots & Security Alerts -->
+      <section class="alerts-panel">
+        <div class="panel-box alerts-box">
+          <div class="panel-header">
+            <div class="header-tag">
+              <span>SECURITY INCIDENTS &amp; EVIDENCE SNAPSHOTS</span>
+            </div>
+            <span class="incident-badge" id="incident-count">0 LOGGED</span>
+          </div>
+
+          <!-- Suspicious Activity & Weapon Snapshot Stream -->
+          <div class="incidents-stream" id="incidents-stream">
+            <div class="no-incidents" id="no-incidents">
+              <div class="shield-symbol">&#128737;</div>
+              <h3>Area Secure</h3>
+              <p>No weapon detections, shoplifting sequences, or suspicious activity logged.</p>
+            </div>
+          </div>
+
+          <!-- Local Server Test Bar -->
+          <div class="test-bar">
+            <span class="test-label">SIMULATE FOR LOCAL TESTING:</span>
+            <div class="test-buttons">
+              <button class="btn-test btn-gun" data-event="weapon_detected" data-obj="gun">Simulate Gun</button>
+              <button class="btn-test btn-knife" data-event="weapon_detected" data-obj="knife">Simulate Knife</button>
+              <button class="btn-test btn-theft" data-event="theft" data-obj="person_theft_behavior">Simulate Theft</button>
+              <button class="btn-test btn-loiter" data-event="suspicious_activity" data-obj="loitering">Simulate Suspicious Activity</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Evidence Snapshot Inspection Modal -->
+    <div class="modal-overlay" id="snapshot-modal" hidden>
+      <div class="modal-window">
+        <div class="modal-top">
+          <h3 class="modal-title">EVIDENCE SNAPSHOT &bull; INCIDENT RECORD</h3>
+          <button class="modal-close-btn" id="btn-close-modal" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-image-box">
+            <img id="modal-img" src="" alt="Captured Evidence Snapshot" />
+          </div>
+          <div class="modal-info-grid">
+            <div class="info-row">
+              <span class="info-key">TIMESTAMP:</span>
+              <span class="info-val" id="modal-time">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">INCIDENT CLASSIFICATION:</span>
+              <span class="info-val" id="modal-classification">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">THREAT SEVERITY:</span>
+              <span class="info-val" id="modal-threat">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">TRACKED SUBJECT:</span>
+              <span class="info-val" id="modal-track">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">AI EXPLANATION:</span>
+              <span class="info-val" id="modal-desc">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-key">RECOMMENDED PROTOCOL:</span>
+              <span class="info-val highlight-action" id="modal-action">-</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-bottom">
+          <button class="btn-modal-dismiss" id="btn-dismiss-modal">CLOSE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+# ─── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ─── Secrets / Environment ────────────────────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ─── Database ─────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── ML Models (large binary files) ──────────────────────────
+*.pt
+*.pth
+*.onnx
+*.torchscript
+models/
+
+# ─── Evidence / Snapshots (runtime-generated images) ──────────
+backend/evidence/
+
+# ─── Test / debug artifacts ───────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+test_*.jpg
+test_*.png
+
+# ─── Frontend ─────────────────────────────────────────────────
+frontend/node_modules/
+frontend/.cache/
+
+# ─── OS / IDE ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.suo
+*.user
+
+# ─── Misc scripts used during development ─────────────────────
+backend/write_*.py
+backend/diag_*.py
